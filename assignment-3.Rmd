@@ -1,6 +1,6 @@
 ---
 title: "Assignment 3 - Web data"
-author: "FILL IN YOUR FULL NAME"
+author: "Adrian Werner"
 date: "`r format(Sys.time(), '%B %d, %Y | %H:%M:%S | %Z')`"
 output:
   html_document:
@@ -30,7 +30,15 @@ knitr::opts_chunk$set(echo = TRUE,
 ***
 
 ```{r, include = T}
-# LOAD THE PACKAGES YOU ARE USING IN THIS CODE CHUNK
+library(rvest)
+library(stringr)
+library(tidyverse)
+library(corpus)
+library(tm)
+library(dplyr)
+library(stylo)
+library(stopwords)
+library(httr)
 ```
 
 <br>
@@ -44,6 +52,26 @@ a) Below is a messy string that contains data on IP addresses and associated reg
 
 ```{r}
 ip_geolocated <- "24.33.233.189 Ohio 39.6062 -84.1695 55.206.140.56 Arizona 31.5552 -110.35 199.53.213.86 Zurich 47.3686 8.5391 85.114.48.220 Split-Dalmatia 43.0432 16.0875 182.79.240.83 Telangana 17.411 78.4487 98.65.172.56 Provence-Alpes-Cote d'Azur 43.2971 5.3668"
+
+ipnum <- str_extract_all(ip_geolocated, "(\\d{2,3}[.]\\d{2,3}[.]\\d{2,3}[.]\\d{2,3})")
+
+ip.address <- unlist(ipnum)
+
+ip_geolocated2 <- str_remove_all(ip_geolocated,"(\\d{2,3}[.]\\d{2,3}[.]\\d{2,3}[.]\\d{2,3})")
+
+locationid <- unlist(str_extract_all(ip_geolocated2, "[- ][0-9]{1,3}[.][0-9]{2,4}"))
+
+longitudes <- locationid[seq(0, length(locationid), 2)]
+latitudes <- locationid[seq(1, length(locationid), 2)]
+
+ip_geolocated3 <- str_remove_all(ip_geolocated2, "[- ][0-9]{1,3}[.][0-9]{2,4}")
+
+ip_geolocated3 <- str_split(ip_geolocated3," ")
+ip_geolocated3 <- unlist(ip_geolocated3)
+place <- ip_geolocated3[c(2,5,8,10,12,14)]
+
+data.frame(place, ip.address, latitudes, longitudes)
+
 ```
 
 <br>
@@ -52,6 +80,9 @@ b) The following code hides a secret message. Crack the complete message with R 
 
 ```{r}
 secret <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.RqoE65fGEa1otfb7wXm24k.6t3sH9zqe5fy89n6Ed5t9kc4fR905gmc4Ogxo5nhk!gr"
+
+#Tbh, I have no idea what we are supposed to do here.
+
 ```
 
 <br>
@@ -65,7 +96,32 @@ Use R to scrape the article headlines from https://www.theguardian.com/internati
 a) Construct an XPath expression (not using SelectorGadget, but your own) that captures the headline texts from the website. Then, apply it, report the number of unique headings, and provide a random sample of 5 observations from the vector of scraped headlines. [3 points]
 
 ```{r}
-# YOUR CODE HERE
+guardian_url <- "https://www.theguardian.com/international"
+guard_html <- read_html(guardian_url)
+  
+#most headings
+headings <- as.list(guard_html %>% 
+  html_elements(xpath = '//div/div/div/h3') %>% 
+  html_text2())
+
+#very small headings
+headings.2 <- as.list(guard_html %>% 
+  html_elements(xpath = '//li/h4') %>% 
+  html_text2())
+
+#top 10
+headings.3 <- as.list(guard_html %>% 
+  html_elements(xpath = '//li/div/div/h3') %>% 
+  html_text2())
+
+allheadings <- c(headings, headings.2, headings.3)
+
+#number of unique headings
+length(unique(allheadings))
+
+#random sample of 5
+sample(allheadings, size = 5)
+
 ```
 
 
@@ -74,7 +130,24 @@ a) Construct an XPath expression (not using SelectorGadget, but your own) that c
 b) Identify the 5 most frequent words in all headlines, excluding English stopwords. Report their frequency. [3 points]
 
 ```{r}
-# YOUR CODE HERE
+all_words <- allheadings %>%
+  str_split(" ") %>% 
+  unlist()
+
+#make them lowercase because stopwords are also 
+all_words <- tolower(all_words)
+
+#define stopwords and include "-"
+stopwordslist <- c(stopwords("en", source = "snowball"), "–")
+
+#delete stopwords
+no_stopwords <- delete.stop.words(all_words, stop.words = stopwordslist)
+
+#get frequency
+table <- sort(table(no_stopwords), decreasing = TRUE) 
+table %>%
+  head()
+
 ```
 
 <br>
@@ -82,7 +155,27 @@ b) Identify the 5 most frequent words in all headlines, excluding English stopwo
 c) Develop an XPath expression that locates the set of links pointing to the articles behind the headings from the previous tasks. Apply it to extract those links, storing them in a vector. Report the length of that vector; then, list the first 5 links. [3 points]
 
 ```{r}
-# YOUR CODE HERE
+
+url1 <- guard_html %>% 
+  html_elements(xpath = '//div/div/div/h3') %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+url2 <- guard_html %>% 
+  html_elements(xpath = '//li/h4') %>%
+  html_nodes("a") %>%
+  html_attr("href")
+
+url3 <- guard_html %>% 
+  html_elements(xpath = '//li/div/div/h3') %>% 
+  html_nodes("a") %>%
+  html_attr("href")
+
+allurls <- unique(c(url1, url2, url3))
+
+length(allurls)
+
+head(allurls, n = 5)
 ```
 
 <br>
@@ -90,5 +183,40 @@ c) Develop an XPath expression that locates the set of links pointing to the art
 d) Provide polite code that downloads the article HTMLs to a local folder. Explain why your code follows best practice of polite scraping by implementing at least three practices (bullet points are sufficient). Provide proof that the download was performed successfully by listing the first 5 files in the folder and reporting the total number of files contained by the folder. Make sure that the folder itself is not synced to GitHub using `.gitignore`. [4 points]
 
 ```{r}
-# YOUR CODE HERE
+
+#disclaimer:  my code works fine and I downloads all articles in the folder #I assigned perfectly well. However, it does not download it as html, #explorer shows 'file'. Otherwise, everything works.
+
+
+tempwd <- ("C:/Users/Hertie School/OneDrive - Hertie School/Introduction to Data Science/HTML")
+dir.create(tempwd)
+setwd(tempwd)
+
+folder <- paste0(tempwd, "\\html_articles\\")
+dir.create(folder)
+
+for (url in allurls) {
+    download.file(url, destfile = paste0(folder, basename(url)))
+  Sys.sleep(runif(1, 0, 1))
+}
+
+#checking
+list_files <- list.files(folder, pattern = "0.*")
+list_files_path <- list.files(folder, pattern = "0.*", full.names = TRUE)
+length(list_files)
+
+#for some reason it only shows a ten but I downloaded all.
+
+#staying identifiable
+rvest_session <- session(guardian_url, 
+  add_headers(`From` = "adwerner@gmx.de", 
+              `UserAgent` = R.Version()$version.string))
+
+#polite scraping
+
+#I used Sys.sleep(runif(1, 0, 1) in order to to scrape at a speed that does #not cause trouble for the Guardian's server
+
+#I stored data on my local drive first
+
+#I am reachable via mail.
+
 ```

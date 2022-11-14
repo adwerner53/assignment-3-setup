@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="FILL IN YOUR FULL NAME" />
+<meta name="author" content="Adrian Werner" />
 
 
 <title>Assignment 3 - Web data</title>
@@ -1821,8 +1821,8 @@ pre code {
 
 
 <h1 class="title toc-ignore">Assignment 3 - Web data</h1>
-<h4 class="author">FILL IN YOUR FULL NAME</h4>
-<h4 class="date">October 30, 2022 | 21:53:26 | CET</h4>
+<h4 class="author">Adrian Werner</h4>
+<h4 class="date">November 14, 2022 | 09:54:59 | CET</h4>
 
 </div>
 
@@ -1832,7 +1832,15 @@ div.answer {background-color:#f3f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <!-- Do not forget to input your Github username in the YAML configuration up there -->
 <hr />
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LOAD THE PACKAGES YOU ARE USING IN THIS CODE CHUNK</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corpus)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stylo)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stopwords)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(httr)</span></code></pre></div>
 <p><br></p>
 <hr />
 <div id="task-1---speaking-regex-7-points-in-total" class="section level3">
@@ -1843,14 +1851,40 @@ associated regions as well as latitudes and longitudes. Use regular
 expressions to parse information from the string and store all variables
 in a data frame. Return the data frame. [5 points]</li>
 </ol>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ip_geolocated <span class="ot">&lt;-</span> <span class="st">&quot;24.33.233.189 Ohio 39.6062 -84.1695 55.206.140.56 Arizona 31.5552 -110.35 199.53.213.86 Zurich 47.3686 8.5391 85.114.48.220 Split-Dalmatia 43.0432 16.0875 182.79.240.83 Telangana 17.411 78.4487 98.65.172.56 Provence-Alpes-Cote d&#39;Azur 43.2971 5.3668&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ip_geolocated <span class="ot">&lt;-</span> <span class="st">&quot;24.33.233.189 Ohio 39.6062 -84.1695 55.206.140.56 Arizona 31.5552 -110.35 199.53.213.86 Zurich 47.3686 8.5391 85.114.48.220 Split-Dalmatia 43.0432 16.0875 182.79.240.83 Telangana 17.411 78.4487 98.65.172.56 Provence-Alpes-Cote d&#39;Azur 43.2971 5.3668&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>ipnum <span class="ot">&lt;-</span> <span class="fu">str_extract_all</span>(ip_geolocated, <span class="st">&quot;(</span><span class="sc">\\</span><span class="st">d{2,3}[.]</span><span class="sc">\\</span><span class="st">d{2,3}[.]</span><span class="sc">\\</span><span class="st">d{2,3}[.]</span><span class="sc">\\</span><span class="st">d{2,3})&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ip.address <span class="ot">&lt;-</span> <span class="fu">unlist</span>(ipnum)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>ip_geolocated2 <span class="ot">&lt;-</span> <span class="fu">str_remove_all</span>(ip_geolocated,<span class="st">&quot;(</span><span class="sc">\\</span><span class="st">d{2,3}[.]</span><span class="sc">\\</span><span class="st">d{2,3}[.]</span><span class="sc">\\</span><span class="st">d{2,3}[.]</span><span class="sc">\\</span><span class="st">d{2,3})&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>locationid <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">str_extract_all</span>(ip_geolocated2, <span class="st">&quot;[- ][0-9]{1,3}[.][0-9]{2,4}&quot;</span>))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>longitudes <span class="ot">&lt;-</span> locationid[<span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">length</span>(locationid), <span class="dv">2</span>)]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>latitudes <span class="ot">&lt;-</span> locationid[<span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">length</span>(locationid), <span class="dv">2</span>)]</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>ip_geolocated3 <span class="ot">&lt;-</span> <span class="fu">str_remove_all</span>(ip_geolocated2, <span class="st">&quot;[- ][0-9]{1,3}[.][0-9]{2,4}&quot;</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>ip_geolocated3 <span class="ot">&lt;-</span> <span class="fu">str_split</span>(ip_geolocated3,<span class="st">&quot; &quot;</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>ip_geolocated3 <span class="ot">&lt;-</span> <span class="fu">unlist</span>(ip_geolocated3)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>place <span class="ot">&lt;-</span> ip_geolocated3[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span>)]</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(place, ip.address, latitudes, longitudes)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["place"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ip.address"],"name":[2],"type":["chr"],"align":["left"]},{"label":["latitudes"],"name":[3],"type":["chr"],"align":["left"]},{"label":["longitudes"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"Ohio","2":"24.33.233.189","3":"39.6062","4":"-84.1695"},{"1":"Arizona","2":"55.206.140.56","3":"31.5552","4":"-110.35"},{"1":"Zurich","2":"199.53.213.86","3":"47.3686","4":"8.5391"},{"1":"Split-Dalmatia","2":"85.114.48.220","3":"43.0432","4":"16.0875"},{"1":"Telangana","2":"182.79.240.83","3":"17.411","4":"78.4487"},{"1":"Provence-Alpes-Cote","2":"98.65.172.56","3":"43.2971","4":"5.3668"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <p><br></p>
 <ol start="2" style="list-style-type: lower-alpha">
 <li>The following code hides a secret message. Crack the complete
 message with R and regular expressions. Once you have cracked it,
 collapse the solution into one single string. [2 points]</li>
 </ol>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>secret <span class="ot">&lt;-</span> <span class="st">&quot;clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.RqoE65fGEa1otfb7wXm24k.6t3sH9zqe5fy89n6Ed5t9kc4fR905gmc4Ogxo5nhk!gr&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>secret <span class="ot">&lt;-</span> <span class="st">&quot;clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.RqoE65fGEa1otfb7wXm24k.6t3sH9zqe5fy89n6Ed5t9kc4fR905gmc4Ogxo5nhk!gr&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Tbh, I have no idea what we are supposed to do here.</span></span></code></pre></div>
 <p><br></p>
 <hr />
 </div>
@@ -1863,13 +1897,70 @@ own) that captures the headline texts from the website. Then, apply it,
 report the number of unique headings, and provide a random sample of 5
 observations from the vector of scraped headlines. [3 points]</li>
 </ol>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>guardian_url <span class="ot">&lt;-</span> <span class="st">&quot;https://www.theguardian.com/international&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>guard_html <span class="ot">&lt;-</span> <span class="fu">read_html</span>(guardian_url)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#most headings</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>headings <span class="ot">&lt;-</span> <span class="fu">as.list</span>(guard_html <span class="sc">%&gt;%</span> </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="at">xpath =</span> <span class="st">&#39;//div/div/div/h3&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>())</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#very small headings</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>headings<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">as.list</span>(guard_html <span class="sc">%&gt;%</span> </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="at">xpath =</span> <span class="st">&#39;//li/h4&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>())</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#top 10</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>headings<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">as.list</span>(guard_html <span class="sc">%&gt;%</span> </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="at">xpath =</span> <span class="st">&#39;//li/div/div/h3&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text2</span>())</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>allheadings <span class="ot">&lt;-</span> <span class="fu">c</span>(headings, headings<span class="fl">.2</span>, headings<span class="fl">.3</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#number of unique headings</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(allheadings))</span></code></pre></div>
+<pre><code>[1] 107</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#random sample of 5</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(allheadings, <span class="at">size =</span> <span class="dv">5</span>)</span></code></pre></div>
+<pre><code>[[1]]
+[1] &quot;At a glance Russian forces destroy key infrastructure in Kherson&quot;
+
+[[2]]
+[1] &quot;Australia Medibank mental health data posted on dark web as Russian hackers vow to ‘keep our word’&quot;
+
+[[3]]
+[1] &quot;‘They’re coming back’ Huge flows set to restore life to parched end of Murray-Darling system&quot;
+
+[[4]]
+[1] &quot;We don’t want to bring down the curtain on ENO, but opera has to change&quot;
+
+[[5]]
+[1] &quot;Australia Army helicopter sparked massive Canberra blaze after crew stopped for toilet break, inquest hears&quot;</code></pre>
 <p><br></p>
 <ol start="2" style="list-style-type: lower-alpha">
 <li>Identify the 5 most frequent words in all headlines, excluding
 English stopwords. Report their frequency. [3 points]</li>
 </ol>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>all_words <span class="ot">&lt;-</span> allheadings <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_split</span>(<span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unlist</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#make them lowercase because stopwords are also </span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>all_words <span class="ot">&lt;-</span> <span class="fu">tolower</span>(all_words)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#define stopwords and include &quot;-&quot;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>stopwordslist <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">stopwords</span>(<span class="st">&quot;en&quot;</span>, <span class="at">source =</span> <span class="st">&quot;snowball&quot;</span>), <span class="st">&quot;–&quot;</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#delete stopwords</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>no_stopwords <span class="ot">&lt;-</span> <span class="fu">delete.stop.words</span>(all_words, <span class="at">stop.words =</span> stopwordslist)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#get frequency</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>table <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">table</span>(no_stopwords), <span class="at">decreasing =</span> <span class="cn">TRUE</span>) </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>table <span class="sc">%&gt;%</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code></pre></div>
+<pre><code>no_stopwords
+  china   first     man   world     1-2 kherson 
+      8       7       7       7       6       6 </code></pre>
 <p><br></p>
 <ol start="3" style="list-style-type: lower-alpha">
 <li>Develop an XPath expression that locates the set of links pointing
@@ -1877,7 +1968,31 @@ to the articles behind the headings from the previous tasks. Apply it to
 extract those links, storing them in a vector. Report the length of that
 vector; then, list the first 5 links. [3 points]</li>
 </ol>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>url1 <span class="ot">&lt;-</span> guard_html <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="at">xpath =</span> <span class="st">&#39;//div/div/div/h3&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;a&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_attr</span>(<span class="st">&quot;href&quot;</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>url2 <span class="ot">&lt;-</span> guard_html <span class="sc">%&gt;%</span> </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="at">xpath =</span> <span class="st">&#39;//li/h4&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;a&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_attr</span>(<span class="st">&quot;href&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>url3 <span class="ot">&lt;-</span> guard_html <span class="sc">%&gt;%</span> </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="at">xpath =</span> <span class="st">&#39;//li/div/div/h3&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;a&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_attr</span>(<span class="st">&quot;href&quot;</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>allurls <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">c</span>(url1, url2, url3))</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(allurls)</span></code></pre></div>
+<pre><code>[1] 98</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(allurls, <span class="at">n =</span> <span class="dv">5</span>)</span></code></pre></div>
+<pre><code>[1] &quot;https://www.theguardian.com/world/live/2022/nov/14/russia-ukraine-war-live-news-race-to-restore-power-and-water-in-kherson-murdered-civilians-found-zelenskiy-says&quot;
+[2] &quot;https://www.theguardian.com/uk-news/2022/nov/14/more-patrols-promised-as-uk-and-france-sign-channel-deal-to-curb-migration&quot;                                        
+[3] &quot;https://www.theguardian.com/world/2022/nov/14/india-faces-deepening-demographic-divide-as-it-prepares-to-overtake-china-as-the-worlds-most-populous-country&quot;       
+[4] &quot;https://www.theguardian.com/world/2022/nov/14/taiwan-looms-large-as-joe-biden-prepares-to-meet-xi-jinping-in-bali&quot;                                                 
+[5] &quot;https://www.theguardian.com/environment/live/2022/nov/14/cop27-egypt-lula-brazil-rainforests-climate-conference-live&quot;                                              </code></pre>
 <p><br></p>
 <ol start="4" style="list-style-type: lower-alpha">
 <li>Provide polite code that downloads the article HTMLs to a local
@@ -1888,7 +2003,40 @@ the first 5 files in the folder and reporting the total number of files
 contained by the folder. Make sure that the folder itself is not synced
 to GitHub using <code>.gitignore</code>. [4 points]</li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#disclaimer:  my code works fine and I downloads all articles in the folder #I assigned perfectly well. However, it does not download it as html, #explorer shows &#39;file&#39;. Otherwise, everything works.</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>tempwd <span class="ot">&lt;-</span> (<span class="st">&quot;C:/Users/Hertie School/OneDrive - Hertie School/Introduction to Data Science/HTML&quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(tempwd)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(tempwd)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>folder <span class="ot">&lt;-</span> <span class="fu">paste0</span>(tempwd, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">html_articles</span><span class="sc">\\</span><span class="st">&quot;</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(folder)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (url <span class="cf">in</span> allurls) {</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">download.file</span>(url, <span class="at">destfile =</span> <span class="fu">paste0</span>(folder, <span class="fu">basename</span>(url)))</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Sys.sleep</span>(<span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co">#checking</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>list_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(folder, <span class="at">pattern =</span> <span class="st">&quot;0.*&quot;</span>)</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>list_files_path <span class="ot">&lt;-</span> <span class="fu">list.files</span>(folder, <span class="at">pattern =</span> <span class="st">&quot;0.*&quot;</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(list_files)</span></code></pre></div>
+<pre><code>[1] 10</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#for some reason it only shows a ten but I downloaded all.</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#staying identifiable</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>rvest_session <span class="ot">&lt;-</span> <span class="fu">session</span>(guardian_url, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_headers</span>(<span class="st">`</span><span class="at">From</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&quot;adwerner@gmx.de&quot;</span>, </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>              <span class="st">`</span><span class="at">UserAgent</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">R.Version</span>()<span class="sc">$</span>version.string))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#polite scraping</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#I used Sys.sleep(runif(1, 0, 1) in order to to scrape at a speed that does #not cause trouble for the Guardian&#39;s server</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co">#I stored data on my local drive first</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co">#I am reachable via mail.</span></span></code></pre></div>
 </div>
 
 
